@@ -3,16 +3,21 @@ from random import *
 
 # Constants
 CAR_SPEED = 3
-CAR_COLORS = ["red", "blue", "green", "orange", "purple", "pink", "yellow", "cyan", "magenta", "brown", "gray", "lime"]
+CAR_COLORS = ["red", "blue", "green", "orange", "purple", "pink", "cyan", "magenta", "brown", "gray", "lime"]
+PLAYER_STARTING_Y = -275
+PLAYER_SPEED = 4
 
 class Car():
     def __init__(self) -> None:
         self.car_obj = Turtle()
         self.current_y = 0
 
+        self.collision_x = 20
+        self.collision_y = 10
+
         self.design_car()
         self.determine_spawn()
-    
+
     def design_car(self) -> None:
         self.car_obj.shape("square")
         self.car_obj.shapesize(1, 2)
@@ -34,4 +39,26 @@ class Car():
 
 class Player():
     def __init__(self) -> None:
-        pass
+        self.initialize_player()
+        self.y_velocity = 0
+
+    def initialize_player(self):
+        self.player_obj = Turtle()
+        self.player_obj.shape("turtle")
+        self.player_obj.pu()
+        self.player_obj.lt(90)
+        self.player_obj.shapesize(1.5, 1.5)
+        self.player_obj.goto(0, PLAYER_STARTING_Y)
+
+    def up(self):
+        self.y_velocity = PLAYER_SPEED
+    
+    def down(self):
+        self.y_velocity = -PLAYER_SPEED
+
+    def stop(self):
+        self.y_velocity = 0
+
+    def move(self):
+        new_y = self.player_obj.ycor() + self.y_velocity
+        self.player_obj.goto(0, new_y)
