@@ -12,8 +12,8 @@ class Car():
         self.car_obj = Turtle()
         self.current_y = 0
 
-        self.collision_x = 20
-        self.collision_y = 10
+        self.collision_min_x = 0
+        self.collision_min_y = 0
 
         self.design_car()
         self.determine_spawn()
@@ -24,6 +24,10 @@ class Car():
         self.car_obj.pu()
         self.car_obj.color(choice(CAR_COLORS))
 
+    def update_collision(self) -> None:
+        self.collision_min_x = self.car_obj.xcor() - 20
+        self.collision_min_y = self.car_obj.ycor() - 10
+
     def determine_spawn(self) -> None:
         self.current_y = randrange(-300, 300)
         self.car_obj.goto(-400, self.current_y)
@@ -31,6 +35,8 @@ class Car():
     def car_move(self) -> bool:
         new_x = self.car_obj.xcor() + CAR_SPEED
         self.car_obj.goto(new_x, self.current_y)
+
+        self.update_collision()
 
         if(self.car_obj.xcor() > 400):
             return True
@@ -62,3 +68,12 @@ class Player():
     def move(self):
         new_y = self.player_obj.ycor() + self.y_velocity
         self.player_obj.goto(0, new_y)
+
+    def check_for_collision(self, current_cars):
+        for car in current_cars:
+            within_x_range = self.player_obj.xcor() > car.collision_min_x and self.player_obj.xcor() < (car.collision_min_x+40)
+            within_y_range = self.player_obj.ycor() > car.collision_min_y and self.player_obj.ycor() < (car.collision_min_y+20)
+
+            if within_x_range and within_y_range:
+                print("Collision detected!")
+                self.player_obj.color("red")

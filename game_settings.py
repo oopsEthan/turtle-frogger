@@ -44,6 +44,7 @@ class Game():
         self.clean_cars()
         self.ui.update_screen()
         self.player.move()
+        self.player.check_for_collision(self.current_cars)
         self.ui.game_window.ontimer(self.game_loop, GAME_SPEED)
 
     def spawn_car(self) -> None:
