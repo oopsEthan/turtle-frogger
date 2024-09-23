@@ -3,7 +3,7 @@ from game_objects import *
 
 # Constants
 GAME_SPEED = 20
-CAR_SPAWN_TIMER = 350
+CAR_SPAWN_TIMER = 450
 TOTAL_CARS_ON_SCREEN = 20
 UP_KEY = "w"
 DOWN_KEY = "s"
@@ -39,7 +39,7 @@ class Game():
 
     def game_loop(self) -> None:
         for car in self.current_cars:
-            if(car.car_move()):
+            if(car.car_move(self.ui.game_window)):
                 self.cars_to_be_removed.append(car)
         self.clean_cars()
         self.ui.update_screen()
@@ -52,6 +52,7 @@ class Game():
 
         if len(self.current_cars) < TOTAL_CARS_ON_SCREEN:
             car = Car()
+            car.determine_spawn(self.ui.game_window)
             self.current_cars.append(car)
 
     def clean_cars(self) -> None:
