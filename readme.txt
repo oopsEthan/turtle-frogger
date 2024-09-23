@@ -12,7 +12,7 @@ Focus on:
     - Reducing repetition
     - Consistent Git commit messages
     - Constants were able
-    - Indicate hhat is being returned with -> None
+    - Indicate what is being returned with -> None
 
 Improvements:
     - Game is laggy after a few car spawns - too much being called on game_loop?
