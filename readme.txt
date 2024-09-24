@@ -16,4 +16,7 @@ Focus on:
 
 Improvements:
     - Game is laggy after a few car spawns - too much being called on game_loop?
+        - Moving towards four lanes - add depth as cars can go both way
+        - May help with lag a bit as it will have less cars on the road?
+        - Difficulty may either increase speed or vary spawn/speed in some wa
     - Car and player collision detection seem buggy?
