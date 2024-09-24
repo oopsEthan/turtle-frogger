@@ -4,7 +4,7 @@ from random import *
 # Constants
 CAR_SPEED = 3
 CAR_COLORS = ["red", "blue", "green", "orange", "purple", "pink", "cyan", "magenta", "brown", "gray", "lime"]
-PLAYER_STARTING_Y = -275
+PLAYER_STARTING_Y = -375
 PLAYER_SPEED = 4
 PLAYER_SIZE = 1.5
 
@@ -52,6 +52,7 @@ class Player():
     def initialize_player(self):
         self.player_obj = Turtle()
         self.player_obj.shape("turtle")
+        self.player_obj.color("green3")
         self.player_obj.pu()
         self.player_obj.lt(90)
         self.player_obj.shapesize(PLAYER_SIZE, PLAYER_SIZE)
@@ -78,9 +79,10 @@ class Player():
 
     def check_for_collision(self, current_cars):
         for car in current_cars:
-            within_x_range = self.player_min_x <= (car.collision_min_x+40) and (self.player_min_x+30) >= car.collision_min_x
-            within_y_range = self.player_min_y <= (car.collision_min_y+20) and (self.player_min_y+30) >= car.collision_min_y
+            if abs(self.player_obj.xcor() - car.car_obj.xcor() < 50):
+                within_x_range = self.player_min_x <= (car.collision_min_x+40) and (self.player_min_x+30) >= car.collision_min_x
+                within_y_range = self.player_min_y <= (car.collision_min_y+20) and (self.player_min_y+30) >= car.collision_min_y
 
-            if within_x_range and within_y_range:
-                print("Collision detected!")
-                self.player_obj.color("red")
+                if within_x_range and within_y_range:
+                    print("Collision detected!")
+                    self.player_obj.color("red")
