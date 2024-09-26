@@ -57,16 +57,12 @@ class UI():
         lines = 20
         draw = True
         while lines > 0:
-            if draw:
-                self.road_builder.pd()
-
-            else:
-                self.road_builder.pu()
+            self.road_builder.pen(pendown=draw)
+            draw = not draw
 
             new_x = self.road_builder.xcor() - LINE_LENGTH
             self.road_builder.goto(new_x, self.road_builder.ycor())
             lines -= 1
-            draw = not draw
 
 class Game():
     def __init__(self) -> None:
