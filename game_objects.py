@@ -2,12 +2,10 @@ from turtle import *
 from random import *
 
 # Constants
-CAR_SPEED = 3
+CAR_SPEED = 5
 CAR_COLORS = ["red", "blue", "green", "orange", "purple", "pink", "cyan", "magenta", "brown", "gray", "lime"]
-CAR_RIGHT_SPAWNS = []
-CAR_LEFT_SPAWNS = []
 PLAYER_STARTING_Y = -375
-PLAYER_SPEED = 4
+PLAYER_SPEED = 2
 PLAYER_SIZE = 1.5
 
 class Car():
@@ -37,11 +35,12 @@ class Car():
 
         if lane[0] == 245:
             self.direction = "right"
+            spawn_x = -screen.window_width() / 2 - 40
 
         elif lane[0] == 305:
-            self.direciton = "left"
+            self.direction = "left"
+            spawn_x = screen.window_width() / 2 + 40
             
-        spawn_x = -screen.window_width() / 2 - 40
         self.car_obj.goto(spawn_x, self.current_y)
 
     def car_move(self, screen) -> bool:
@@ -49,16 +48,18 @@ class Car():
 
         if self.direction == "right":
             new_x = self.car_obj.xcor() + CAR_SPEED
+            if(self.car_obj.xcor() > screen.window_width() / 2 + 40):
+                print(f"{self.car_obj} deleted.")
+                return True
 
         elif self.direction == "left":
             new_x = self.car_obj.xcor() - CAR_SPEED
+            if(self.car_obj.xcor() < -screen.window_width() / 2 - 40):
+                print(f"{self.car_obj} deleted.")
+                return True
 
         self.car_obj.goto(new_x, self.current_y)
-
         self.update_collision()
-
-        if(self.car_obj.xcor() > screen.window_width() / 2 + 40):
-            return True
         return False
 
 

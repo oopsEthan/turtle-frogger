@@ -5,26 +5,27 @@ from random import randint
 # Constants
 GAME_SPEED = 15
 CAR_SPAWN_TIMER = 450
-TOTAL_CARS_ON_SCREEN = 5
+TOTAL_CARS_ON_SCREEN = 30
 UP_KEY = "w"
 DOWN_KEY = "s"
-ROAD_LENGTH = 600
+ROAD_LENGTH = 550
 ROAD_WIDTH = 110
 LINE_WIDTH = 10
 LINE_LENGTH = 60
+FINISH_LINE_Y = 360
 SPAWN_POINT_OFFSET = 30
 
 class UI():
     def __init__(self) -> None:
         self.game_window = Screen()
-        self.game_window.tracer(0)
-        self.road_builder = Turtle()
 
-        self.left_lane_spawn_points = []
-        self.right_lane_spawn_points = []
-        self.lane_spawn_points = [self.left_lane_spawn_points, self.right_lane_spawn_points]
+        # Adjust for FPS
+        self.game_window.tracer(8)
 
-        self.draw_roads()
+        self.gameplay_turtle = Turtle()
+        self.draw_finish_line()
+
+        self.roads = Road_Builder()
         
     def update_screen(self) -> None:
         self.game_window.update()
@@ -35,6 +36,22 @@ class UI():
         self.game_window.onkeypress(player.down, DOWN_KEY)
         self.game_window.onkeyrelease(player.stop, UP_KEY)
         self.game_window.onkeyrelease(player.stop, DOWN_KEY)
+
+    def draw_finish_line(self) -> None:
+        self.gameplay_turtle.pen(pendown=False)
+        self.gameplay_turtle.goto(-ROAD_LENGTH, FINISH_LINE_Y)
+        self.gameplay_turtle.pen(pendown=True, pencolor="green2", pensize=10)
+        self.gameplay_turtle.goto(ROAD_LENGTH, FINISH_LINE_Y)
+
+class Road_Builder():
+    def __init__(self) -> None:
+        self.road_builder = Turtle()
+
+        self.left_lane_spawn_points = []
+        self.right_lane_spawn_points = []
+        self.lane_spawn_points = [self.left_lane_spawn_points, self.right_lane_spawn_points]
+
+        self.draw_roads()
 
     def draw_roads(self) -> None:
         roads_needed = 4
@@ -84,6 +101,9 @@ class Game():
         self.cars_to_be_removed = []
         self.spawn_car()
 
+        # Presently unused
+        self.difficulty = 1
+
         self.player = Player()
 
         self.ui.begin_listening(self.player)
@@ -95,13 +115,14 @@ class Game():
             if(car.car_move(self.ui.game_window)):
                 self.cars_to_be_removed.append(car)
 
-        if len(self.cars_to_be_removed) >= 1:
-            self.clean_cars()
-
         self.player.move()
         self.player.check_for_collision(self.current_cars)
 
         self.ui.update_screen()
+
+        if len(self.cars_to_be_removed) >= 1:
+            self.clean_cars()
+
         self.ui.game_window.ontimer(self.game_loop, GAME_SPEED)
 
     def spawn_car(self) -> None:
@@ -109,13 +130,14 @@ class Game():
 
         if len(self.current_cars) < TOTAL_CARS_ON_SCREEN:
             car = Car()
-            car.determine_spawn(self.ui.game_window, self.ui.lane_spawn_points)
+            car.determine_spawn(self.ui.game_window, self.ui.roads.lane_spawn_points)
             self.current_cars.append(car)
 
     def clean_cars(self) -> None:
         for car in self.cars_to_be_removed:
             self.current_cars.remove(car)
             car.car_obj.hideturtle()
+            del car
         self.cars_to_be_removed.clear()
 
     def run(self) -> None:
