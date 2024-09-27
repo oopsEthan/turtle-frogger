@@ -4,6 +4,8 @@ from random import *
 # Constants
 CAR_SPEED = 3
 CAR_COLORS = ["red", "blue", "green", "orange", "purple", "pink", "cyan", "magenta", "brown", "gray", "lime"]
+CAR_RIGHT_SPAWNS = []
+CAR_LEFT_SPAWNS = []
 PLAYER_STARTING_Y = -375
 PLAYER_SPEED = 4
 PLAYER_SIZE = 1.5
@@ -12,6 +14,7 @@ class Car():
     def __init__(self) -> None:
         self.car_obj = Turtle()
         self.current_y = 0
+        self.direction = ""
 
         self.collision_min_x = 0
         self.collision_min_y = 0
@@ -28,13 +31,28 @@ class Car():
         self.collision_min_x = self.car_obj.xcor() - 20
         self.collision_min_y = self.car_obj.ycor() - 10
 
-    def determine_spawn(self, screen) -> None:
-        self.current_y = randrange(-300, 300)
+    def determine_spawn(self, screen, spawn_points) -> None:
+        lane = choice(spawn_points)
+        self.current_y = choice(lane)
+
+        if lane[0] == 245:
+            self.direction = "right"
+
+        elif lane[0] == 305:
+            self.direciton = "left"
+            
         spawn_x = -screen.window_width() / 2 - 40
         self.car_obj.goto(spawn_x, self.current_y)
 
     def car_move(self, screen) -> bool:
-        new_x = self.car_obj.xcor() + CAR_SPEED
+        new_x = 0
+
+        if self.direction == "right":
+            new_x = self.car_obj.xcor() + CAR_SPEED
+
+        elif self.direction == "left":
+            new_x = self.car_obj.xcor() - CAR_SPEED
+
         self.car_obj.goto(new_x, self.current_y)
 
         self.update_collision()

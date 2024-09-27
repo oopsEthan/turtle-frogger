@@ -19,3 +19,6 @@ Improvements:
         - Moving towards four lanes - add depth as cars can go both way
         - May help with lag a bit as it will have less cars on the road?
         - Difficulty may either increase speed or vary spawn/speed in some wa
+
+Current Bugs:
+    - Ongoing issue with cars on the left side of the road not driving properly, they sort of just... park

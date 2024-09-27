@@ -5,13 +5,14 @@ from random import randint
 # Constants
 GAME_SPEED = 15
 CAR_SPAWN_TIMER = 450
-TOTAL_CARS_ON_SCREEN = 0
+TOTAL_CARS_ON_SCREEN = 5
 UP_KEY = "w"
 DOWN_KEY = "s"
 ROAD_LENGTH = 600
 ROAD_WIDTH = 110
 LINE_WIDTH = 10
 LINE_LENGTH = 60
+SPAWN_POINT_OFFSET = 30
 
 class UI():
     def __init__(self) -> None:
@@ -19,8 +20,11 @@ class UI():
         self.game_window.tracer(0)
         self.road_builder = Turtle()
 
-        self.build_roads()
-        self.road_builder.hideturtle()
+        self.left_lane_spawn_points = []
+        self.right_lane_spawn_points = []
+        self.lane_spawn_points = [self.left_lane_spawn_points, self.right_lane_spawn_points]
+
+        self.draw_roads()
         
     def update_screen(self) -> None:
         self.game_window.update()
@@ -32,26 +36,31 @@ class UI():
         self.game_window.onkeyrelease(player.stop, UP_KEY)
         self.game_window.onkeyrelease(player.stop, DOWN_KEY)
 
-    def build_roads(self) -> None:
+    def draw_roads(self) -> None:
         roads_needed = 4
         road_y = 275
+
         while roads_needed > 0:
-            self.build_asphalt(0, road_y)
+            self.draw_individual_road(0, road_y)
             road_y -= 175
             roads_needed -= 1
+
+        self.road_builder.pen(pendown=False, shown=False)
     
-    def build_asphalt(self, x, y) -> None:
-        self.road_builder.pu()
-        self.road_builder.color("gray30")
+    def draw_individual_road(self, x, y) -> None:
+        self.road_builder.pen(pendown=False, pencolor="gray30", pensize=ROAD_WIDTH)
+
         self.road_builder.goto(x-ROAD_LENGTH, y)
-        self.road_builder.width(ROAD_WIDTH)
         self.road_builder.pd()
         self.road_builder.goto(x+ROAD_LENGTH, y)
-        self.paint_lines()
 
-    def paint_lines(self) -> None:
-        self.road_builder.color("white")
-        self.road_builder.width(LINE_WIDTH)
+        self.update_spawn_points(y)
+
+        self.draw_lines()
+
+    def draw_lines(self) -> None:
+        self.road_builder.pen(pencolor="white", pensize=LINE_WIDTH)
+
         random_starting_x = self.road_builder.xcor() + randint(-40, 40)
         self.road_builder.goto(random_starting_x, self.road_builder.ycor())
         lines = 20
@@ -63,6 +72,10 @@ class UI():
             new_x = self.road_builder.xcor() - LINE_LENGTH
             self.road_builder.goto(new_x, self.road_builder.ycor())
             lines -= 1
+            
+    def update_spawn_points(self, spawn_point):
+        self.left_lane_spawn_points.append(spawn_point - SPAWN_POINT_OFFSET)
+        self.right_lane_spawn_points.append(spawn_point + SPAWN_POINT_OFFSET)
 
 class Game():
     def __init__(self) -> None:
@@ -96,7 +109,7 @@ class Game():
 
         if len(self.current_cars) < TOTAL_CARS_ON_SCREEN:
             car = Car()
-            car.determine_spawn(self.ui.game_window)
+            car.determine_spawn(self.ui.game_window, self.ui.lane_spawn_points)
             self.current_cars.append(car)
 
     def clean_cars(self) -> None:
