@@ -19,10 +19,13 @@ class UI():
     def __init__(self) -> None:
         self.game_window = Screen()
         self.game_window.setup(1024, 768)
-        self.game_window.tracer(20)  # Adjust for FPS
+        self.game_window.tracer(0)  # Adjust for FPS
 
         self.gameplay_turtle = Turtle()
+        self.gameplay_turtle.pen(pendown=False, shown=False)
+
         self.text_turtle = Turtle()
+        self.text_turtle.pen(pendown=False, shown=False)
 
         self.draw_finish_line()
         self.roads = Road_Builder()
@@ -38,16 +41,22 @@ class UI():
         self.game_window.onkeyrelease(player.stop, DOWN_KEY)
 
     def draw_finish_line(self) -> None:
-        self.gameplay_turtle.pen(pendown=False)
         self.gameplay_turtle.goto(-ROAD_LENGTH, FINISH_LINE_Y)
         self.gameplay_turtle.pen(pendown=True, pencolor="green2", pensize=10)
         self.gameplay_turtle.goto(ROAD_LENGTH, FINISH_LINE_Y)
 
-    def draw_words(self, string, var_color) -> None:
+    def draw_words(self, string, sub_string) -> None:
         self.text_turtle.pen(pendown=False)
         self.text_turtle.goto(0, 170)
-        self.text_turtle.pen(pendown=True, pencolor=var_color)
+        self.text_turtle.pen(pendown=True)
         self.text_turtle.write(f"{string}", align="center", font=("Courier", 32, "bold"))
+        self.draw_sub_words(sub_string)
+
+    def draw_sub_words(self, string) -> None:
+        self.text_turtle.pen(pendown=False)
+        self.text_turtle.goto(0, -5)
+        self.text_turtle.pen(pendown=True)
+        self.text_turtle.write(f"{string}", align="center", font=("Courier", 24, "bold"))
 
     def clear_words(self) -> None:
         self.text_turtle.clear()
@@ -99,6 +108,7 @@ class Game():
         self.ui = UI()
         self.current_cars = []
         self.cars_to_be_removed = []
+        self.prev_y = 0
         self.spawn_car()
 
         self.win = False
@@ -109,47 +119,58 @@ class Game():
         self.game_loop()
 
     def game_loop(self) -> None:
-        for car in self.current_cars:
-            if car.car_move(self.ui.game_window):
-                self.cars_to_be_removed.append(car)
-
         if not self.win and not self.collision_detected:
+            for car in self.current_cars:
+                if car.car_move(self.ui.game_window):
+                    self.cars_to_be_removed.append(car)
+
+            self.player.move()
             self.collision_detected = self.player.check_for_collision(self.current_cars)
             self.win = self.player.check_for_finish(FINISH_LINE_Y)
-            self.player.move()
 
-        if self.collision_detected:
+            if len(self.cars_to_be_removed) >= 1:
+                self.clean_cars(self.cars_to_be_removed)
+
+            self.ui.update_screen()
+
+            self.ui.game_window.ontimer(self.game_loop, GAME_SPEED)
+
+        elif self.collision_detected:
             self.hit_by_car()
 
-        if self.win:
+        elif self.win:
             self.reached_end()
 
-        self.ui.update_screen()
-
-        if len(self.cars_to_be_removed) >= 1:
-            self.clean_cars()
-
-        self.ui.game_window.ontimer(self.game_loop, GAME_SPEED)
-
     def spawn_car(self) -> None:
-        self.ui.game_window.ontimer(self.spawn_car, CAR_SPAWN_TIMER)
         if len(self.current_cars) < TOTAL_CARS_ON_SCREEN:
-            car = Car()
-            car.determine_spawn(self.ui.game_window, self.ui.roads.lane_spawn_points)
+            car = Car(self.prev_y)
+            self.prev_y = car.determine_spawn(self.ui.game_window, self.ui.roads.lane_spawn_points)
             self.current_cars.append(car)
+        self.ui.game_window.ontimer(self.spawn_car, CAR_SPAWN_TIMER)
 
-    def clean_cars(self) -> None:
-        for car in self.cars_to_be_removed:
+    def clean_cars(self, car_list_to_clean) -> None:
+        for car in car_list_to_clean:
             self.current_cars.remove(car)
             car.car_obj.hideturtle()
+            car.car_obj.clear()
             del car
-        self.cars_to_be_removed.clear()
+        car_list_to_clean.clear()
 
     def reached_end(self):
-        self.ui.draw_words("You Win!", "black")
+        self.ui.draw_words("You Win!", "Click to continue")
+        self.ui.game_window.listen()
+        self.ui.game_window.onclick(self.reset_and_increase_difficulty)
 
     def hit_by_car(self):
-        self.ui.draw_words("Game Over!", "black")
+        self.ui.draw_words("Game Over!", "Click to restart")
+    
+    def reset_and_increase_difficulty(self, x=None, y=None):
+        print("DEBUG: Click detected!")
+        self.clean_cars(self.cars_to_be_removed)
+        self.clean_cars(self.current_cars)
+        self.ui.update_screen()
+        self.win = False
+        self.game_loop()
 
     def run(self) -> None:
         self.ui.game_window.mainloop()

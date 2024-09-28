@@ -9,9 +9,10 @@ PLAYER_SPEED = 2
 PLAYER_SIZE = 1.5
 
 class Car():
-    def __init__(self) -> None:
+    def __init__(self, prev_y) -> None:
         self.car_obj = Turtle()
         self.current_y = 0
+        self.prev_y = prev_y
         self.direction = ""
 
         self.collision_min_x = 0
@@ -29,9 +30,14 @@ class Car():
         self.collision_min_x = self.car_obj.xcor() - 20
         self.collision_min_y = self.car_obj.ycor() - 10
 
-    def determine_spawn(self, screen, spawn_points) -> None:
+    def determine_spawn(self, screen, spawn_points) -> float:
         lane = choice(spawn_points)
+        
         self.current_y = choice(lane)
+        while self.current_y == self.prev_y:
+            self.current_y = choice(lane)
+        kickback_y_before_randomizing = self.current_y
+        self.current_y += randint(1, 10)
 
         if lane[0] == 245:
             self.direction = "right"
@@ -41,22 +47,21 @@ class Car():
             self.direction = "left"
             spawn_x = screen.window_width() / 2 + 40
 
-        self.car_obj.goto(spawn_x, self.current_y)
+        self.car_obj.teleport(spawn_x, self.current_y)
+        return kickback_y_before_randomizing
 
     def car_move(self, screen) -> bool:
         if self.direction == "right":
             new_x = self.car_obj.xcor() + CAR_SPEED
             if self.car_obj.xcor() > screen.window_width() / 2 + 40:
-                print(f"{self.car_obj} deleted.")
                 return True
 
         elif self.direction == "left":
             new_x = self.car_obj.xcor() - CAR_SPEED
             if self.car_obj.xcor() < -screen.window_width() / 2 - 40:
-                print(f"{self.car_obj} deleted.")
                 return True
 
-        self.car_obj.goto(new_x, self.current_y)
+        self.car_obj.teleport(new_x, self.current_y)
         self.update_collision()
         return False
 
@@ -75,7 +80,7 @@ class Player():
         self.player_obj.pu()
         self.player_obj.lt(90)
         self.player_obj.shapesize(PLAYER_SIZE, PLAYER_SIZE)
-        self.player_obj.goto(0, PLAYER_STARTING_Y)
+        self.player_obj.teleport(0, PLAYER_STARTING_Y)
 
     def up(self) -> None:
         self.y_velocity = PLAYER_SPEED
@@ -88,7 +93,7 @@ class Player():
 
     def move(self) -> None:
         new_y = self.player_obj.ycor() + self.y_velocity
-        self.player_obj.goto(0, new_y)
+        self.player_obj.teleport(0, new_y)
         self.update_collision()
 
     def update_collision(self) -> None:
@@ -102,13 +107,11 @@ class Player():
                 within_y_range = self.player_min_y <= (car.collision_min_y + 20) and (self.player_min_y + 30) >= car.collision_min_y
 
                 if within_x_range and within_y_range:
-                    print("Collision detected!")
                     self.player_obj.color("red")
                     return True
         return False
 
     def check_for_finish(self, finish_line_y) -> bool:
         if self.player_obj.ycor() >= finish_line_y:
-            print(f"DEBUG: Win Detected!")
             return True
         return False
