@@ -1,13 +1,23 @@
 from turtle import *
 from game_objects import *
 from random import randint
+from random import randint
 
 # Constants
 GAME_SPEED = 15
 CAR_SPAWN_TIMER = 450
 TOTAL_CARS_ON_SCREEN = 30
+GAME_SPEED = 15
+CAR_SPAWN_TIMER = 450
+TOTAL_CARS_ON_SCREEN = 30
 UP_KEY = "w"
 DOWN_KEY = "s"
+ROAD_LENGTH = 550
+ROAD_WIDTH = 110
+LINE_WIDTH = 10
+LINE_LENGTH = 60
+FINISH_LINE_Y = 360
+SPAWN_POINT_OFFSET = 30
 ROAD_LENGTH = 550
 ROAD_WIDTH = 110
 LINE_WIDTH = 10
@@ -128,6 +138,7 @@ class Game():
     def game_loop(self) -> None:
         for car in self.current_cars:
             if(car.car_move(self.ui.game_window)):
+            if(car.car_move(self.ui.game_window)):
                 self.cars_to_be_removed.append(car)
 
         if not self.win and not self.collision_detected:
@@ -154,12 +165,14 @@ class Game():
         if len(self.current_cars) < TOTAL_CARS_ON_SCREEN:
             car = Car()
             car.determine_spawn(self.ui.game_window, self.ui.roads.lane_spawn_points)
+            car.determine_spawn(self.ui.game_window, self.ui.roads.lane_spawn_points)
             self.current_cars.append(car)
 
     def clean_cars(self) -> None:
         for car in self.cars_to_be_removed:
             self.current_cars.remove(car)
             car.car_obj.hideturtle()
+            del car
             del car
         self.cars_to_be_removed.clear()
     
