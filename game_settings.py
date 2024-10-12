@@ -68,6 +68,7 @@ class Graphics_Drawer(Turtle):
         self.left_lane_spawn_points = []
         self.right_lane_spawn_points = []
         self.lane_spawn_points = [self.left_lane_spawn_points, self.right_lane_spawn_points]
+        self.hideturtle()
 
     # Draw multiple roads on the screen
     def draw_roads(self) -> None:
@@ -77,13 +78,11 @@ class Graphics_Drawer(Turtle):
             self.draw_individual_road(0, road_y)
             road_y -= 175
             roads_needed -= 1
-        self.pen(pendown=False, shown=False)
     
     # Draw an individual road
     def draw_individual_road(self, x: int, y: int) -> None:
-        self.pen(pendown=False, pencolor="gray30", pensize=ROAD_WIDTH)
-        self.goto(x-ROAD_LENGTH, y)
-        self.pd()
+        self.teleport(x-ROAD_LENGTH, y)
+        self.pen(pencolor="gray30", pensize=ROAD_WIDTH)
         self.goto(x+ROAD_LENGTH, y)
         self.update_spawn_points(y)
         self.draw_lines()
@@ -93,9 +92,10 @@ class Graphics_Drawer(Turtle):
         self.pen(pencolor="white", pensize=LINE_WIDTH)
         random_starting_x = self.xcor() + randint(-40, 40)
         self.goto(random_starting_x, self.ycor())
-        lines = 20
+        lines = 19
         draw = True
         while lines > 0:
+            print(draw)
             self.pen(pendown=draw)
             draw = not draw
             new_x = self.xcor() - LINE_LENGTH
@@ -109,9 +109,8 @@ class Graphics_Drawer(Turtle):
 
     # Draw the finish line at the top of the screen
     def draw_finish_line(self) -> None:
-        self.pen(pendown=False)
-        self.goto(-ROAD_LENGTH, FINISH_LINE_Y)
-        self.pen(pendown=True, pencolor="green2", pensize=10)
+        self.teleport(-ROAD_LENGTH, FINISH_LINE_Y)
+        self.pen(pencolor="green2", pensize=10)
         self.goto(ROAD_LENGTH, FINISH_LINE_Y)
 
 class Game():
