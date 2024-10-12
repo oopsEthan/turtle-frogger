@@ -15,7 +15,7 @@ CAR_COLORS = [
 PLAYER_STARTING_Y = -375
 PLAYER_SPEED = 2
 PLAYER_SIZE = 1.5
-PLAYER_COLLISION_THRESHOLD = 25
+PLAYER_COLLISION_THRESHOLD = 30
 
 class Car(Turtle):
     # Initialize the car object
@@ -32,7 +32,6 @@ class Car(Turtle):
     def design_car(self) -> None:
         self.shape("square")
         self.shapesize(1, 2)
-        self.pu()
         self.color(choice(CAR_COLORS))
 
     # Determine the spawn location for the car, ensuring it doesn't spawn in the same lane as the previous one
@@ -52,7 +51,7 @@ class Car(Turtle):
             self.direction = "left"
             spawn_x = screen.window_width() / 2 + 40
 
-        self.goto(spawn_x, self.current_y)
+        self.teleport(spawn_x, self.current_y)
         return kickback_y_before_randomizing
 
     # Move the car across the screen and return True if it goes off-screen
@@ -66,8 +65,7 @@ class Car(Turtle):
             if self.xcor() < -screen.window_width() / 2 - 40:
                 return True
 
-        self.goto(new_x, self.current_y)
-        self.update_collision()
+        self.teleport(new_x, self.current_y)
         return False
 
 class Player(Turtle):
