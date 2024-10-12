@@ -26,9 +26,6 @@ class Car(Turtle):
         self.direction = ""
         self.car_speed = car_speed
 
-        self.collision_min_x = 0
-        self.collision_min_y = 0
-
         self.design_car()
 
     # Design the car with random color and attributes
@@ -37,11 +34,6 @@ class Car(Turtle):
         self.shapesize(1, 2)
         self.pu()
         self.color(choice(CAR_COLORS))
-
-    # Update the collision boundaries of the car
-    def update_collision(self) -> None:
-        self.collision_min_x = self.xcor() - 20
-        self.collision_min_y = self.ycor() - 10
 
     # Determine the spawn location for the car, ensuring it doesn't spawn in the same lane as the previous one
     def determine_spawn(self, screen: Screen, spawn_points: list) -> float:
