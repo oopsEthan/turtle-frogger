@@ -15,6 +15,8 @@ SPAWN_POINT_OFFSET = 30
 
 # Constants for UI
 ROAD_LENGTH = 550
+ROAD_SPACING = 175
+ROAD_Y_MIN = -250
 ROAD_WIDTH = 110
 LINE_WIDTH = 10
 LINE_LENGTH = 60
@@ -26,7 +28,7 @@ class UI(Turtle):
         super().__init__()
         self.game_window = Screen()
         self.game_window.setup(1024, 768)
-        self.game_window.tracer(0)  # or tracer(8) based on performance
+        self.game_window.tracer(0)
 
         self.graphics = Graphics_Drawer()
         self.graphics.draw_finish_line()
@@ -50,12 +52,9 @@ class UI(Turtle):
     def draw_words(self, string: str, sub_string: str) -> None:
         self.teleport(0, 170)
         self.write(f"{string}", align="center", font=("Courier", 32, "bold"))
-        self.draw_sub_words(sub_string)
 
-    # Draw the subtext on the screen
-    def draw_sub_words(self, string: str) -> None:
         self.teleport(0, -5)
-        self.write(f"{string}", align="center", font=("Courier", 24, "bold"))
+        self.write(f"{sub_string}", align="center", font=("Courier", 24, "bold"))
 
     # Clear the text from the screen
     def clear_words(self) -> None:
@@ -72,17 +71,15 @@ class Graphics_Drawer(Turtle):
 
     # Draw multiple roads on the screen
     def draw_roads(self) -> None:
-        roads_needed = 4
         road_y = 275
-        while roads_needed > 0:
+        while road_y >= ROAD_Y_MIN:
+            self.pen(pencolor="gray30", pensize=ROAD_WIDTH)
             self.draw_individual_road(0, road_y)
-            road_y -= 175
-            roads_needed -= 1
+            road_y -= ROAD_SPACING
     
     # Draw an individual road
     def draw_individual_road(self, x: int, y: int) -> None:
         self.teleport(x-ROAD_LENGTH, y)
-        self.pen(pencolor="gray30", pensize=ROAD_WIDTH)
         self.goto(x+ROAD_LENGTH, y)
         self.update_spawn_points(y)
         self.draw_lines()
@@ -95,7 +92,6 @@ class Graphics_Drawer(Turtle):
         lines = 19
         draw = True
         while lines > 0:
-            print(draw)
             self.pen(pendown=draw)
             draw = not draw
             new_x = self.xcor() - LINE_LENGTH
@@ -122,7 +118,7 @@ class Game():
         self.prev_y = 0
         self.car_timer = CAR_SPAWN_TIMER
         self.difficulty = DEFAULT_DIFFICULTY
-        self.ui.update_screen()  # for initial setup
+        self.ui.update_screen()
 
         self.player = Player()
         self.ui.begin_listening(self.player)
@@ -167,6 +163,7 @@ class Game():
     # Display "You Win!" when the player reaches the finish line
     def reached_end(self) -> None:
         self.ui.draw_words("You Win!", "Click to continue")
+        self.difficulty += 2
         self.ui.game_window.onclick(self.reset_screen)
 
     # Display "Game Over" when the player hits a car

@@ -19,7 +19,7 @@ PLAYER_COLLISION_THRESHOLD = 30
 
 class Car(Turtle):
     # Initialize the car object
-    def __init__(self, prev_y: float, car_speed: int = CAR_SPEED) -> None:
+    def __init__(self, prev_y, car_speed: int = CAR_SPEED) -> None:
         super().__init__()
         self.current_y = 0
         self.prev_y = prev_y
